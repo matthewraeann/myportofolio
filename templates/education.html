@@ -22,34 +22,41 @@
     </header>
 
     <main>
-        <section class="experience-section" id="experience">
+        <section class="education-section" id="education">
             <div class="container">
-                <p class="section-kicker">Perjalanan saya sejauh ini</p>
-                <h1>Experience</h1>
+                <p class="section-kicker">Riwayat Pendidikan</p>
+                <h1>My Education</h1>
 
-                <div class="experience-grid">
-                    {% for experience in experience_list %}
-                        <article class="experience-card">
-                            <span class="experience-category">
-                                {{ experience.get_category_display }}
-                            </span>
-                            <h2>{{ experience.title }}</h2>
-                            <p class="experience-description">
-                                {{ experience.description }}
-                            </p>
-
-                            {% if experience.is_ongoing %}
-                                <p class="experience-status">Sedang berlangsung</p>
-                            {% else %}
-                                <p class="experience-status">Selesai</p>
-                            {% endif %}
+                <div class="education-timeline-container">
+                    {% for education in education_list %}
+                        <article class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            
+                            <div class="timeline-content">
+                                <h3 class="timeline-degree">{{ education.degree }}</h3>
+                                <h4 class="timeline-institution">{{ education.institution }}</h4>
+                                
+                                <p class="timeline-date">
+                                    {{ education.start_year|date:"Y" }} &mdash; 
+                                    {% if education.is_ongoing %}
+                                        Present
+                                    {% else %}
+                                        {{ education.end_year|date:"Y" }}
+                                    {% endif %}
+                                </p>
+                                
+                                <p class="timeline-description">
+                                    {{ education.description }}
+                                </p>
+                            </div>
                         </article>
                     {% empty %}
                         <p class="empty-state">
-                            Belum ada pengalaman yang ditambahkan.
+                            Belum ada riwayat edukasi yang ditambahkan.
                         </p>
                     {% endfor %}
                 </div>
+
             </div>
         </section>
     </main>
