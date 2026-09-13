@@ -19,3 +19,29 @@ AI teresbut saya gunakan untuk:
 Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Namun, pada bagian gambaran kasar untuk membuat section Experience. Output dari AI tidak benar benar saya ikuti semua karena tidak sesuai dengan preferensi saya. AI dapat memberikan jawaban dengan benar namun kita tidak bisa 100% mengikutinya karena AI tidak mendapatkan context mengenai bagaimana saya ingin website saya dibuat dan layout website seperti apa yang saya inginkan.
 
 Log Gemini: https://share.gemini.google/3BzUadzycpTK
+
+### Tugas 2
+1. Ketika pengguna membuka halaman portofolio baru, browser pengguna akan mengirimkan request ke server django, kemudian Django akan memeriksa urls.py di direktori utama. Jika URL nya cook, maka akan diteruskan ke fungsi include() ke urls.py milik aplikasi (dalam kasus web saya yaitu aplikasi main). Kemudian urls.py milik aplikasi akan mengecek sisa path dan memetakannya ke fungsi view tertentu (misalnya sisa path "education/" ke fungsi "show_education"). Kemudian view akan memerima request tersebut dan akan meminta data dari model/database dan mereturn context yang sudah berisi data dari model. selain model view juga akan mereturn template yang sudah dapat diisi oleh data dari model sehingga dapat menampilkan tampilan website yang sudah bersisi data dari model melalui file html.
+
+2. Agar website menjadi dinamis. Jika ditulis langsung di template website akan menjadi statis. 
+
+Pengruh dalam pemeliharaan :
+Jika menuliskan langsung di file html, setiap kali ingin menambahkan data baru (misal pengalaman baru ataupun riwayat edukasi baru), maka perlu mengubah kodenya secara manual di file html, yang mana hal tersebut sangatlah tidak praktis. Sementara jika kita menggunakan Model untuk menyimpan data, kita dapat menambahkan, menghapus, ataupun mengedit data secara instan melalui django admin tanpa perlu menyentuh kode yang sudah dibuat sama sekali. Jika kode tidak diubah, artinya kita tidak perlu men deploy ulang kode html.
+
+Pengaruh dalam pengembangan :
+Pemisahan antara tampilan (Template) dengan data (Model) mematuhi prinsip Separation of Concerns. Hal ini memungkinkan kita untuk mengembangkan fitur dengan mudah di masa depan. Contohnya menambahkan fitur filter bedasarkan kategori ataupun fitur sort berdasarkan tanggal.
+
+3. Perintahmakemigration berfungsi untuk mencatat perubahan yang ada pada model dengan membuat file migration. Perintah ini belum mengubah database sama sekali. Sementara migrate berfungsi untuk menjalankan file migrasi yang telah dibuat oleh perintah makemigration dan menerapkannya ke sistem database yang ada.
+
+Contoh: Ketika membuat class education di file models.py di app main, saya perlu untuk menjalankan perintah makemigration dan juga migrate agar django dapat mengimplementasikannya ke dalam database.
+
+#### AI Disclosure Tugas 2
+Pada tugas ini saya menggunakan Gemini model 3.8 Flash untuk membantu saya mengerjakan tugas ini. 
+AI teresebut saya gunakan untuk:
+1. Membantu memahami kode yang sudah diberikan dari tutorial 2
+2. Membantu memahami cara mengecek, menambahkan, menghapus, dan mengedit data di database yang ada.
+3. Membantu memahami jenis-jenis field yang ada dalam model.
+
+Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada missinformasi. 
+
+Log Gemini: https://share.gemini.google/wkGJh5nWgzZa
