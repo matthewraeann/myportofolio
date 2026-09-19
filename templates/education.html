@@ -2,13 +2,36 @@
 {% block meta %}
     <title>Education - {{ name }}</title>
 {% endblock meta %}
+
 {% block content %}
     <main>
         <section class="education-section" id="education">
             <div class="container">
-                <p class="section-kicker">Riwayat Pendidikan</p>
-                <h1>My Education</h1>
+                
+                <!-- 1. Dikelompokkan dalam satu baris (Flexbox) -->
+                <div class="section-header-row">
+                    <div class="title-group">
+                        <p class="section-kicker">Riwayat Pendidikan</p>
+                        <h1>My Education</h1>
+                    </div>
+                    <a href="{% url 'main:create_education' %}" class="button project-add-button">
+                        <span aria-hidden="true">+</span>
+                        Tambah Riwayat
+                    </a>
+                </div>
 
+                <!-- 2. Form Search yang lebih terpisah -->
+                <form method="get" action="{% url 'main:show_educations' %}" class="project-search">
+                    <input type="search"
+                           name="institution"
+                           value="{{ institution_query }}"
+                           placeholder="Cari berdasarkan nama institusi..."
+                           class="project-search__input"
+                           aria-label="Cari berdasarkan nama institusi">
+                    <button type="submit" class="button">Cari</button>
+                </form>
+
+                <!-- 3. Container Timeline -->
                 <div class="education-timeline-container">
                     {% for education in education_list %}
                         <article class="timeline-item">
@@ -30,12 +53,65 @@
                                 <p class="timeline-description">
                                     {{ education.description }}
                                 </p>
+                                <!-- Tambahkan tombol Hapus dan modal di sini -->
+                                <div class="project-actions">
+                                    <p class="experience-status">
+                                        <button type="button"
+                                                class="button button-danger"
+                                                popovertarget="delete-education-{{ education.id }}"
+                                                aria-label="Hapus {{ education.institution }}"
+                                                title="Hapus riwayat edukasi">
+                                            Hapus Riwayat Edukasi
+                                        </button>
+                                    </p>
+                                </div>
+                                
+                                <div id="delete-education-{{ education.id }}"
+                                     class="project-delete-modal"
+                                     popover="auto"
+                                     role="dialog"
+                                     aria-modal="true"
+                                     aria-labelledby="delete-education-title-{{ education.id }}">
+                                    <button type="button"
+                                            class="project-delete-modal__backdrop"
+                                            popovertarget="delete-education-{{ education.id }}"
+                                            popovertargetaction="hide"
+                                            aria-label="Tutup konfirmasi hapus"></button>
+                                    <div class="project-delete-modal__content">
+                                        <button type="button"
+                                                class="project-delete-modal__close"
+                                                popovertarget="delete-education-{{ education.id }}"
+                                                popovertargetaction="hide"
+                                                aria-label="Tutup konfirmasi hapus">×</button>
+                                        <h2 id="delete-education-title-{{ education.id }}">Hapus Riwayat Edukasi?</h2>
+                                        <p>
+                                            Apakah Anda yakin ingin menghapus
+                                            <strong>{{ education.institution }}</strong>?
+                                        </p>
+                                        <div class="project-delete-modal__actions">
+                                            <button type="button"
+                                                    class="button button-secondary"
+                                                    popovertarget="delete-education-{{ education.id }}"
+                                                    popovertargetaction="hide">Batal</button>
+                                            <form method="post" action="{% url 'main:delete_education' education.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="button button-danger">Ya, Hapus</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Selesai penambahan tombol Hapus dan modal -->
                             </div>
                         </article>
                     {% empty %}
-                        <p class="empty-state">
-                            Belum ada riwayat edukasi yang ditambahkan.
-                        </p>
+                        <!-- 4. Tampilan State Kosong yang lebih rapih -->
+                        <div class="empty-state-box">
+                            {% if institution_query %}
+                                <p class="empty-state">Tidak ada riwayat edukasi dengan institusi tersebut.</p>
+                            {% else %}
+                                <p class="empty-state">Belum ada riwayat edukasi yang ditambahkan.</p>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
 

@@ -71,7 +71,7 @@ class MainTest(TestCase):
         self.assertTrue(self.education.is_ongoing)
 
     def test_education_page(self):
-        response = self.client.get(reverse("main:show_education"))
+        response = self.client.get(reverse("main:show_educations"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")

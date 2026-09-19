@@ -28,9 +28,19 @@ def show_experience(request):
 
 
 def show_educations(request):
+    json_response = get_educations_json(request)
+
+    educations = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    educations = [education.object for education in educations]
+    institution_query = request.GET.get("institution", "").strip()
+
     context = {
         "name": "Matthew Raeann Alexandra",
-        "education_list": Education.objects.all().order_by('-start_year'), 
+        "education_list": educations,
+        "institution_query": institution_query,
     }
     return render(request, "education.html", context)
 
@@ -40,7 +50,7 @@ def create_education(request):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Riwayat pendidikan baru berhasil ditambahkan!")
-        return redirect("main:show_education")
+        return redirect("main:show_educations")
 
     context = {
         "name": "Matthew Raeann Alexandra",
@@ -49,11 +59,11 @@ def create_education(request):
     return render(request, "education_form.html", context)
 
 def get_educations_json(request):
-    title_query = request.GET.get("title", "").strip()
-    educations = Education.objects.all()
+    institution_query = request.GET.get("institution", "").strip()
+    educations = Education.objects.all().order_by('-start_year')
 
-    if title_query:
-        educations = educations.filter(title__icontains=title_query)
+    if institution_query:
+        educations = educations.filter(institution__icontains=institution_query)
 
     educations_json = serializers.serialize("json", educations)
     return HttpResponse(educations_json, content_type="application/json")
