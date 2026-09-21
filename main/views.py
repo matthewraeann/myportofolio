@@ -58,6 +58,26 @@ def create_education(request):
     }
     return render(request, "education_form.html", context)
 
+def update_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+
+    if request.method == "POST":
+        form = EducationForm(request.POST, instance=education)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Riwayat edukasi berasil diperbaharui!')
+            return redirect("main:show_educations")
+        
+    elif request.method == "GET":
+        form = EducationForm(instance=education)
+
+    context = {
+        'name': "Matthew Raeann Alexandra",
+        'form': form, 
+        'education': education
+    }
+    return render(request, "education_form.html", context)
+
 def get_educations_json(request):
     institution_query = request.GET.get("institution", "").strip()
     educations = Education.objects.all().order_by('-start_year')

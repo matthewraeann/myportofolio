@@ -45,3 +45,19 @@ AI teresebut saya gunakan untuk:
 Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada missinformasi. 
 
 Log Gemini: https://share.gemini.google/wkGJh5nWgzZa
+
+### Tugas 3
+1. Karena dengan menggunakan ModelForm kita tidak perlu menghabiskan waktu dan energi untuk membuat form HTML secara manual dan menentukan aturan validasinya sendiri. ModelForm dapat membaca model yang sudah kita definisikan di models.py dan secara otomatis membuatkan form HTMLnya beserta dengan aturan validasi field-fieldnya. Fungsi {% csrf_token %} adalah menjaga keamanan web tersebut dari serangan siber. Saat form di render, tag tersebut akan berubah menjadi sebuah kode rahasia yang terdiri dari kombinasi angka dan huruf yang sangat panjang. Saat form dikirim, Django akan memeriksa kode tersebut. Jika sama dengan sisi user, form diterima, jika tidak, form ditolak.
+2. Pertama, karena ukuran file JSON lebih kecil dan ringan. JSON menggunakan tanda kurung, sementara XML menggunakan  tag. Hal tersebut membuat file XML menjadi lebih besar dan berat. Ukuran file yang lebih kecil juga membuat pengiriman data menjadi lebih cepat. Kedua, Proses pembacaan JSON lebih cepat. Karena JSON berasal dari struktur objek JavaScript, browser dapt mengubah data JSON menjadi objek siap pakai secara instan. Selain itu, komputer juga membutuhkan waktu dan resource yang lebih sedikit untuk menerjemahkan format JSON dibandingkan dengan XML. Ketiga, JSON memiliki struktur yang lebih sederhana dan mudah dipahami karena menggunakan formay key-value seperti dictionary di python. Keempat, Lebih mudah digunakan di berbagai macam bahasa pemrograman. Hampir semua bahasa pemrograman (Seperti python, java, PHP, dll) memiliki library bawaan untuk mengelola data JSON. Selain itu sebagian besar layanan web dan RESTful API juga menggunakan JSON.
+3. Pertama Klien akan mengirim permintaan/request. Aplikasi klien akan mengirimkan permintaan HTTP GET ke url yang sudah disiapkan, misalnya http://localhost:8000/api/projects/. Kemudian Django akan memproses permintaan tersebut dan mencocokan alamat dengan yang ada di urls.py. Jika ditemukan maka akan diarahkan ke fungsi view yang ditetapkan, misalnya get_projects_json. Setelah itu di dalam fungsi views akan diambil data dari model kemudian mengubahnya menjadi format JSON dengan melakukan serialisasi. Setelah itu fungsi view akan membungkusnya ke dalam sebuah HttpResponse untuk kemudian dikirim dan diterima oleh klien. Sebelum datanya dikembalikan, kita perlu melakukan serialisasi untuk mengubah struktur data QuerySet dari Model menjadi data dalam format JSON.
+
+#### AI Disclosure Tugas 3
+Pada tugas ini saya menggunakan Gemini model 3.1 Pro untuk membantu saya mengerjakan tugas ini. 
+AI teresbut saya gunakan untuk:
+1. Membantu memahami kode yang sudah diberikan dari tutorial 3
+2. Membantu memahami perbedaan dan fungsi JSON dan XML.
+3. Meminta bantuan untuk membuat fitur CRUD pada page dan modul Education
+4. Membantu memahami alur kerja pengubahan data menjadi JSON
+5. Membantu memahami cara sebuah form bekerja dalam Django
+
+Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Namun, output dari AI tidak benar benar saya ikuti semua karena AI tersebut tidak memliki data mengenai apa saja yang sudah atau belum ada dalam kode di repositori kita. AI dapat memberikan jawaban dengan benar namun kita tidak bisa 100% mengikutinya karena AI belum tentu memeberikan jawaban sesuai dengan yang kita butuhkan.
