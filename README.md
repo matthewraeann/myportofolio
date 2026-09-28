@@ -61,3 +61,17 @@ AI teresbut saya gunakan untuk:
 5. Membantu memahami cara sebuah form bekerja dalam Django
 
 Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Namun, output dari AI tidak benar benar saya ikuti semua karena AI tersebut tidak memliki data mengenai apa saja yang sudah atau belum ada dalam kode di repositori kita. AI dapat memberikan jawaban dengan benar namun kita tidak bisa 100% mengikutinya karena AI belum tentu memeberikan jawaban sesuai dengan yang kita butuhkan.
+
+Log Gemini: https://share.gemini.google/J0Enz41PVw1S
+
+#### AI Disclosure Tugas 4
+Pada tugas ini saya menggunakan Gemini model 3.1 Pro (Antigravity) untuk membantu saya mengerjakan tugas ini. 
+AI teresbut saya gunakan untuk:
+1. Membantu memahami requirements Tugas 4 dan membuat rencana pengerjaan Tugas 4
+2. Memberikan langkah-langkah pengerjaan dan pseudocode agar pengerjaan Tugas menjadi lebih terstruktur
+3. Memodifikasi Tempalte (html)
+4. Mencari error dan debugging
+
+Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Saya memberikan instruksi dimana AI dilarang untuk menulis kode blok secara langsung, melainkan memberikan penjelasan langkah-langkah dan pseudocodenya. Kemudian hasil pengerjaan saya baru di review oleh AI untuk diperiksa kembali apakah ada kesalahan atau tidak.
+
+Log Gemini: Saat ini Antigravity belum menyediakan fitur share chat log. Sebagai pengganti saya salin log AI ke dalam file /AI_CHAT_LOG/Tugas4.md

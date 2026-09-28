@@ -14,10 +14,12 @@
                         <p class="section-kicker">Riwayat Pendidikan</p>
                         <h1>My Education</h1>
                     </div>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_education' %}" class="button project-add-button">
                         <span aria-hidden="true">+</span>
                         Tambah Riwayat
                     </a>
+                    {% endif %}
                 </div>
 
                 <!-- 2. Form Search yang lebih terpisah -->
@@ -53,12 +55,16 @@
                                 <p class="timeline-description">
                                     {{ education.description }}
                                 </p>
+                                {% include "components/education_star.html" with education=education %}
                                 <!-- Tambahkan tombol Hapus dan modal di sini -->
                                 <div class="project-actions">
+                                    {% if user.is_superuser or is_editor %}
                                     <!-- Tombol Edit -->
                                     <a href="{% url 'main:update_education' education.id %}" class="button">
                                         Edit Riwayat
                                     </a>
+                                    {% endif %}
+                                    {% if user.is_superuser %}
                                     <!-- Tombol Delete -->
                                     <p class="experience-status">
                                         <button type="button"
@@ -69,6 +75,7 @@
                                             Hapus Riwayat Edukasi
                                         </button>
                                     </p>
+                                    {% endif %}
                                 </div>
                                 
                                 <div id="delete-education-{{ education.id }}"

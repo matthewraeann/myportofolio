@@ -35,6 +35,7 @@ class Education(models.Model):
     end_year = models.DateField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     logo = models.URLField(blank=True, null=True)
+    starred_by = models.ManyToManyField(User, related_name="starred_education", blank=True)
     def __str__(self):
         return f"{self.degree} at {self.institution}"
     

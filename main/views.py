@@ -36,6 +36,8 @@ def show_experience(request):
 
 
 def show_educations(request):
+    is_editor = request.user.groups.filter(name="Editor").exists() if request.user.is_authenticated else False
+
     json_response = get_educations_json(request)
 
     educations = serializers.deserialize(
@@ -49,10 +51,15 @@ def show_educations(request):
         "name": "Matthew Raeann Alexandra",
         "education_list": educations,
         "institution_query": institution_query,
+        "is_editor": is_editor,
     }
     return render(request, "education.html", context)
 
+@login_required(login_url='/login/')
 def create_education(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     form = EducationForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -66,7 +73,12 @@ def create_education(request):
     }
     return render(request, "education_form.html", context)
 
+@login_required(login_url='/login/')
 def update_education(request, education_id):
+    is_editor = request.user.groups.filter(name="Editor").exists()
+    if not request.user.is_superuser and not is_editor:
+        raise PermissionDenied
+
     education = get_object_or_404(Education, pk=education_id)
 
     if request.method == "POST":
@@ -93,10 +105,14 @@ def get_educations_json(request):
     if institution_query:
         educations = educations.filter(institution__icontains=institution_query)
 
-    educations_json = serializers.serialize("json", educations)
+    educations_json = serializers.serialize("json", educations, use_natural_foreign_keys=True)
     return HttpResponse(educations_json, content_type="application/json")
 
+@login_required(login_url='/login/')
 def delete_education(request, education_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     education = get_object_or_404(Education, pk=education_id)
 
     if request.method == "POST":
@@ -212,3 +228,15 @@ def toggle_star(request, project_id):
             project.starred_by.add(request.user)
 
     return redirect('main:show_projects')
+
+@login_required(login_url="/login/")
+def toggle_education_star(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+
+    if (request.method == "POST"):
+        if (request.user in education.starred_by.all()):
+            education.starred_by.remove(request.user)
+        else:
+            education.starred_by.add(request.user)
+
+    return redirect('main:show_educations')
