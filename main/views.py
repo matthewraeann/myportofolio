@@ -4,8 +4,9 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from main.models import Experience, Education, Project
 from main.forms import EducationForm, ProjectForm
@@ -123,19 +124,12 @@ def delete_education(request, education_id):
     return redirect("main:show_educations")
 
 def show_projects(request):
-    json_response = get_projects_json(request)
-
-    projects = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    projects = [project.object for project in projects]
     title_query = request.GET.get("title", "").strip()
 
     context = {
         "name": "Matthew Raeann Alexandra",
-        "project_list": projects,
         "title_query": title_query,
+        "form": ProjectForm(),
     }
     return render(request, "project.html", context)
 
@@ -159,13 +153,34 @@ def create_project(request):
 
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
+    projects = Project.objects.prefetch_related('starred_by').all()
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
-    return HttpResponse(projects_json, content_type="application/json")
+    data = []
+    for project in projects:
+        starred_users = project.starred_by.all()
+        if (request.user in starred_users and request.user.is_authenticated):
+            is_starred = True
+        else :
+            is_starred = False
+        starred_by_names = ", ".join([user.username for user in starred_users])
+
+        data.append({
+            "pk": str(project.id),
+            "fields": {
+                "title": project.title,
+                "description": project.description,
+                "tech_stack": project.tech_stack,
+                "project_url": project.project_url,
+                "project_image_url": project.project_image_url,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_project(request, project_id):
@@ -240,3 +255,16 @@ def toggle_education_star(request, education_id):
             education.starred_by.add(request.user)
 
     return redirect('main:show_educations')
+
+@require_POST
+def create_project_ajax(request):
+    if (not request.user.is_superuser):
+        return JsonResponse({"message": "Akses Ditolak."}, status=403)
+
+    form = ProjectForm(request.POST)
+
+    if (form.is_valid):
+        project = form.save()
+        return JsonResponse({"message": "Sukses", "pk": str(project.id)}, status=201)
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
