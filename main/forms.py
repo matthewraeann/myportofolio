@@ -67,6 +67,7 @@ class ProjectForm(ModelForm):
         description = strip_tags(self.cleaned_data["description"]).strip()
         return description
 
+
 class EducationForm(ModelForm):
     class Meta:
         model = Education
@@ -125,3 +126,27 @@ class EducationForm(ModelForm):
                 }
             ),
         }
+
+    def clean_institution(self):
+        institution = strip_tags(self.cleaned_data["institution"]).strip()
+        if not institution:
+            raise ValidationError("Nama institusi tidak boleh hanya berisi tag HTML.")
+        return institution
+
+    def clean_degree(self):
+        degree = strip_tags(self.cleaned_data["degree"]).strip()
+        if not degree:
+            raise ValidationError("Degree tidak boleh hanya berisi tag HTML.")
+        return degree
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"] or "").strip()
+        return description
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_year = cleaned_data.get("start_year")
+        end_year = cleaned_data.get("end_year")
+        if start_year and end_year and end_year < start_year:
+            self.add_error("end_year", "Tahun selesai tidak boleh lebih awal dari tahun mulai.")
+        return cleaned_data

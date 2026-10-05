@@ -40,5 +40,15 @@
         </footer>
 
         {% include 'components/toast.html' %}
+        {% block messages_toast %}
+        {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const flashMessages = [{% for message in messages %}"{{ message|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+                showToast('Notifikasi', flashMessages.join(' '), 'success');
+            });
+        </script>
+        {% endif %}
+        {% endblock messages_toast %}
     </body>
 </html>

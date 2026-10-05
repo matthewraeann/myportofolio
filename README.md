@@ -75,3 +75,25 @@ AI teresbut saya gunakan untuk:
 Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Saya memberikan instruksi dimana AI dilarang untuk menulis kode blok secara langsung, melainkan memberikan penjelasan langkah-langkah dan pseudocodenya. Kemudian hasil pengerjaan saya baru di review oleh AI untuk diperiksa kembali apakah ada kesalahan atau tidak.
 
 Log Gemini: Saat ini Antigravity belum menyediakan fitur share chat log. Sebagai pengganti saya salin log AI ke dalam file /AI_CHAT_LOG/Tugas4.md
+
+### Tugas 5
+1. Debouncing adalah teknik untuk menunda sebuah fungsi hingga suatu jeda waktu berlalu tanpa event baru. Selama pengguna masih mengetik, timer sebelumnya dibatalkan dan dimulai lagi. Dengan demikian, browser hanya mengirim permintaan setelah pengguna berhenti mengetik selama sejenak. Debouncing penting agar fungsi tidak dipanggil secara terus menerus untuk event-event yang datangnya berdekatan. Tanpa debouncing ketika kita melakukan search maka setiap karakter yang ditambahkan dan dihapus akan mengirimkan request ke server dan dapat membebani server. Dengan debouncing request hanya terjadi ketika terdapat jeda dalam kurun waktu tertentu antar event. Sehingga jumlah request yang dikirim ke server jauh lebih sedikit dan tidak membuat server menjadi lambat.
+
+2. Await adalah keyword yang hanya bisa digunakan di dalam async function dan berfungsi untuk menunggu sebuah Promise selesai diproses sebelum melanjutkan ke baris kode berikutnya. Fungsi `fetch()` mengembalikan Promise, sehingga dengan `await fetch(url)` kita menunggu sampai server membalas dan mendapatkan objek Response yang bisa dicek dengan `response.ok` lalu dibaca dengan `await response.json()`. Jika tidak menggunakan await, kode berikutnya akan langsung dieksekusi sebelum server membalas, sehingga `response` masih berupa Promise. Akibatnya `response.ok` bernilai `undefined`, `response.json()` error, dan data tidak dapat ditampilkan.
+
+3. Cross-Site Scripting (XSS) adalah serangan ketika penyerang berhasil menyisipkan kode JavaScript miliknya ke dalam halaman web yang kemudian dijalankan di browser pengguna lain. Data yang ditampilkan melalui AJAX/JavaScript lebih rentan terhadap serangan XSS daripada melalui tempalte django karena Template Django melakukan auto-escaping pada setiap { variabel }. Ketika menggunakan AJAX tidak ada lagi yang melakukan escaping sehingga browser akan memperlakukan setiap tag HTML di dalam data sebagai kode sungguhan.
+
+#### AI Disclosure Tugas 5
+Pada tugas ini saya menggunakan Gemini model 3.1 Pro (Antigravity) untuk membantu saya mengerjakan tugas ini. 
+AI teresbut saya gunakan untuk:
+1. Memandu pengerjaan Tutorial 5 dan Tugas 5 secara bertahap dengan aturan read-only. AI hanya menjelaskan konsep, fungsi/method Django yang dipakai, dan pseudocode, sedangkan logika utama (views, urls, forms, template tag, CSRF) saya tulis sendiri. Bagian yang repetitif (CSS, HTML tampilan, toast.js) disediakan dengan bagian penting diganti #TODO.
+2. Membantu memahami konsep baru, seperti `{% load static %}`, Popover API, `prefetch_related` untuk menghindari N+1 query, filter `yesno` untuk mengubah boolean Python ke JavaScript, trik dummy UUID untuk membuat URL di JavaScript, alur fetch AJAX, dan debouncing.
+3. Melakukan code review di setiap langkah dan menunjukkan letak kesalahan tanpa memberikan kodenya, misalnya typo `request.GET.get`, filter `title__icontains`, `ProjectForm` tanpa `()`, `form.is_valid` tanpa `()`, indentasi method `clean_` yang salah, dan variabel yang belum di-`escapeHtml`.
+4. Menyusun rencana adaptasi pola Tutorial 5 ke halaman Education (endpoint JSON manual, kerangka halaman kosong, modal form, view `create_education_ajax`, dan `strip_tags` pada `EducationForm`).
+5. Debugging halaman Education, antara lain modal yang tidak muncul karena id masih `add-project-modal`, data yang tidak tampil karena sisa loop `{% for %}`/`{% empty %}` dan typo `stared_by_names`, id form pencarian yang salah, serta pemanggilan `fetchProjects` yang belum diganti.
+6. Mendiskusikan pembagian hak akses antara user, editor, dan superuser.
+7. Membuat commit message dengan format conventional commits.
+
+Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Saya memberikan instruksi dimana AI dilarang untuk menulis kode blok secara langsung, melainkan memberikan penjelasan langkah-langkah dan pseudocodenya. Kemudian hasil pengerjaan saya baru di review oleh AI untuk diperiksa kembali apakah ada kesalahan atau tidak.
+
+Log Gemini: Saat ini Antigravity belum menyediakan fitur share chat log. Sebagai pengganti saya salin log AI ke dalam file /AI_CHAT_LOG/Tugas5.md
