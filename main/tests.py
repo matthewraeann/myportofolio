@@ -77,7 +77,7 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")
         self.assertContains(response, 'id="grid"')
-        self.assertContains(response, reverse("main:get_educations_json"))
+        self.assertContains(response, reverse("api:education-list"))
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
 
     def test_educations_json(self):
