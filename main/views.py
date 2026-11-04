@@ -94,69 +94,6 @@ def update_education(request, education_id):
     }
     return render(request, "education_form.html", context)
 
-def get_educations_json(request):
-    institution_query = request.GET.get("institution", "").strip()
-    educations = Education.objects.all().prefetch_related('starred_by').order_by('-start_year')
-
-    if institution_query:
-        educations = educations.filter(institution__icontains=institution_query)
-
-    data = []
-    for education in educations:
-        starred_users = list(education.starred_by.all())
-        is_starred = request.user.is_authenticated and request.user in starred_users
-
-        data.append({
-            "pk": str(education.id),
-            "fields": {
-                "institution": education.institution,
-                "degree": education.degree,
-                "start_year": education.start_year.isoformat() if education.start_year else None,
-                "end_year": education.end_year.isoformat() if education.end_year else None,
-                "is_ongoing": education.is_ongoing,
-                "description": education.description or "",
-                "logo": education.logo or "",
-                "starred_by_names": ", ".join(user.username for user in starred_users),
-                "is_starred": is_starred,
-                "star_count": len(starred_users),
-            }
-        })
-
-    return JsonResponse(data, safe=False)
-
-@require_POST
-def create_education_ajax(request):
-    if not request.user.is_superuser:
-        return JsonResponse(
-            {"message": "Hanya pemilik portofolio yang dapat menambahkan riwayat edukasi."},
-            status=403,
-        )
-
-    form = EducationForm(request.POST)
-    if form.is_valid():
-        education = form.save()
-        return JsonResponse(
-            {"message": "Riwayat edukasi berhasil ditambahkan.", "pk": str(education.id)},
-            status=201,
-        )
-
-    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
-    
-
-@login_required(login_url='/login/')
-def delete_education(request, education_id):
-    if not request.user.is_superuser:
-        raise PermissionDenied
-
-    education = get_object_or_404(Education, pk=education_id)
-
-    if request.method == "POST":
-        education.delete()
-        messages.success(request, "Education berhasil dihapus!")
-        return redirect("main:show_educations")
-
-    return redirect("main:show_educations")
-
 def show_projects(request):
     title_query = request.GET.get("title", "").strip()
 
@@ -277,18 +214,6 @@ def toggle_star(request, project_id):
             project.starred_by.add(request.user)
 
     return redirect('main:show_projects')
-
-@login_required(login_url="/login/")
-def toggle_education_star(request, education_id):
-    education = get_object_or_404(Education, pk=education_id)
-
-    if (request.method == "POST"):
-        if (request.user in education.starred_by.all()):
-            education.starred_by.remove(request.user)
-        else:
-            education.starred_by.add(request.user)
-
-    return redirect('main:show_educations')
 
 @require_POST
 def create_project_ajax(request):
