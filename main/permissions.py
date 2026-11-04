@@ -12,6 +12,11 @@ class IsPortfolioOwnerOrReadOnly(BasePermission):
 
 
 class IsPortfolioOwnerOrEditorOrReadOnly(BasePermission):
+    message = (
+        "Hanya pemilik portofolio yang dapat menambah atau menghapus data. "
+        "Editor hanya dapat mengubah data."
+    )
+
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
