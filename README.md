@@ -2,6 +2,88 @@ Nama : Matthew Raeann Alexandra
 NPM : 2506544763
 Kelas : PBP B
 
+## Deskripsi Proyek
+myportofolio adalah website portofolio pribadi yang saya kembangkan untuk mata kuliah Pemrograman Berbasis Platform (PBP) Fakultas Ilmu Komputer Universitas Indonesia. Website ini dibangun dengan Django dan menampilkan profil, pengalaman (Experience), riwayat pendidikan (Education), dan proyek (Projects). Bagian Education adalah bagian yang saya kerjakan sendiri pada Tugas 3 sampai Tugas 6, sedangkan bagian Projects mengikuti tutorial.
+
+Website dapat diakses di https://matthew-raeann-myportofolio.pws.cs.ui.ac.id
+
+Fitur utama:
+1. Halaman Education yang dapat menampilkan, mencari, menambah, mengedit, memberi star, dan menghapus riwayat pendidikan tanpa reload halaman melalui REST API.
+2. Register, login, dan logout, beserta cookie `last_login` yang ditampilkan di halaman utama.
+3. Empat peran hak akses, yaitu pengunjung, pengguna biasa, Editor, dan pemilik portofolio.
+4. REST API dengan Django REST Framework di bawah prefix `/api/v1/`, yang juga bisa dibuka melalui Browsable API.
+
+Teknologi yang digunakan: Python, Django 5.2, Django REST Framework 3.18, SQLite (lokal), PostgreSQL (PWS), WhiteNoise, dan Gunicorn.
+
+## Cara Menjalankan Proyek
+1. Clone repositori lalu masuk ke folder proyek.
+```bash
+git clone https://github.com/matthewraeann/myportofolio.git
+cd myportofolio
+```
+2. Buat dan aktifkan virtual environment. Di Windows gunakan `env\Scripts\activate`, sedangkan di macOS/Linux gunakan `source env/bin/activate`.
+```bash
+python -m venv env
+```
+3. Install dependencies.
+```bash
+pip install -r requirements.txt
+```
+4. Buat file `.env` di root proyek yang berisi `PRODUCTION=False`, agar proyek memakai SQLite saat dijalankan secara lokal.
+5. Jalankan migrasi database.
+```bash
+python manage.py migrate
+```
+6. Buat akun pemilik portofolio (superuser).
+```bash
+python manage.py createsuperuser
+```
+7. Untuk peran Editor, buka `/admin/`, buat Group bernama `Editor`, lalu tambahkan akun yang ingin dijadikan Editor ke group tersebut.
+8. Jalankan server, lalu buka http://localhost:8000/education/ untuk halaman Education dan http://localhost:8000/api/v1/educations/ untuk Browsable API.
+```bash
+python manage.py runserver
+```
+9. Jalankan seluruh test. Gunakan `test main` agar hanya test aplikasi main yang dijalankan.
+```bash
+python manage.py test main
+```
+
+## Hak Akses
+| Aksi pada Education | Pengunjung | Pengguna biasa | Editor | Pemilik (superuser) |
+|---|---|---|---|---|
+| Melihat daftar, detail, dan mencari | ✅ | ✅ | ✅ | ✅ |
+| Memberi atau membatalkan star | ❌ | ✅ | ✅ | ✅ |
+| Mengubah data (PUT/PATCH) | ❌ | ❌ | ✅ | ✅ |
+| Menambah (POST) dan menghapus (DELETE) data | ❌ | ❌ | ❌ | ✅ |
+
+Hak akses ini diperiksa di server oleh permission class `IsPortfolioOwnerOrEditorOrReadOnly` dan `IsAuthenticated`, bukan hanya dengan menyembunyikan tombol di template.
+
+## Daftar Endpoint API
+| Method | Endpoint | Fungsi | Akses |
+|---|---|---|---|
+| GET | `/api/v1/educations/?institution=<kata kunci>` | Daftar Education, bisa dicari berdasarkan nama institusi | Semua |
+| POST | `/api/v1/educations/` | Menambah Education (201) | Pemilik |
+| GET | `/api/v1/educations/<id>/` | Detail satu Education (404 jika tidak ada) | Semua |
+| PUT / PATCH | `/api/v1/educations/<id>/` | Mengubah seluruh atau sebagian data | Editor, Pemilik |
+| DELETE | `/api/v1/educations/<id>/` | Menghapus Education (204) | Pemilik |
+| POST | `/api/v1/educations/<id>/star/` | Memberi atau membatalkan star | Pengguna yang login |
+| GET | `/api/v1/projects/?title=<kata kunci>` | Daftar Project (Tutorial 7) | Semua |
+| POST | `/api/v1/projects/` | Menambah Project | Pemilik |
+| GET / PUT / PATCH / DELETE | `/api/v1/projects/<id>/` | Detail, mengubah, dan menghapus Project | GET semua, sisanya Pemilik |
+| POST | `/api/v1/projects/<id>/star/` | Memberi atau membatalkan star Project | Pengguna yang login |
+
+Input yang tidak valid dijawab dengan 400 beserta pesan per field, dan aksi yang tidak diizinkan dijawab dengan 403. Setiap request yang mengubah data wajib menyertakan header `X-CSRFToken`.
+
+## Progres Mingguan
+1. Tugas 1: Membuat website portofolio statis dengan HTML dan CSS, terdiri dari section profil dan Experience, serta tampilan yang responsive.
+2. Tugas 2: Memindahkan portofolio ke Django dengan pola MVT, membuat model dan halaman Experience, menambahkan navbar, dan melakukan deployment ke PWS.
+3. Tugas 3: Membuat model dan halaman Education beserta form tambah, edit, hapus, pencarian berdasarkan nama institusi, dan endpoint JSON.
+4. Tugas 4: Menambahkan register, login, logout, cookie `last_login`, empat peran hak akses (Editor memakai Group), dan fitur star pada Education.
+5. Tugas 5: Mengubah halaman Education agar memakai AJAX (fetch), modal tambah data, toast, pencarian dengan debouncing, dan pembersihan input dengan `strip_tags` untuk mencegah XSS.
+6. Tugas 6: Membuat REST API Education dengan Django REST Framework (serializer, permission class, API view, dan test `APITestCase`), lalu menghubungkan halaman Education ke API tersebut, termasuk modal edit yang mengirim PATCH.
+
+## Pertanyaan Reflektif dan AI Disclosure
+
 ### Tugas 1
 1. Ya, saya menggunakan <section>. Section memungkinkan saya untuk membagi halaman web di bagian body menjadi beberapa section seperti section hero dan portofolio. Section memudahkan dalam pemetaan visual sehingga tidak perlu menumpuk tag <div>. Selain itu secara fungsionalitas, penggunaan elemen semantik akan membuat halaman web memiliki aksesibilitas yang lebih baik bagi pengguna screen reader.
 2. Saat saya mengatur CSS agar tetap responsive, tantangan yang saya alami adalah ketika mengatur tampilan multi kolom agar tampilan tetap bagus ketika layar menyempit. Untuk mengevaluasi elemen mana yang harus diubah posisinya atau diprioritaskan ukurannya saat berpindah dari tampilan desktop ke mobile, saya memutuskan untuk membuat agar alur informasi yang diberikam tetap sama dan tampilannya tetap enak dilihat. Pada bagian Experience logo berada di kiri sementara contentnya di kanan. Saat layar menjadi sempit saya memutuskan untuk membuat logonya menjadi di atas content dengan ukuran yang lebih kecil dengan cara mengubah flex direction dari row menjadi column dan mengubah weidth dan height.
@@ -64,6 +146,9 @@ Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada mis
 
 Log Gemini: https://share.gemini.google/J0Enz41PVw1S
 
+### Tugas 4
+Pada pekan ini pertanyaan reflektif ditiadakan.
+
 #### AI Disclosure Tugas 4
 Pada tugas ini saya menggunakan Gemini model 3.1 Pro (Antigravity) untuk membantu saya mengerjakan tugas ini. 
 AI teresbut saya gunakan untuk:
@@ -109,6 +194,18 @@ Perbedaan PUT dan PATCH ada pada cara mengubah data. PUT mengganti seluruh resou
 
 4. SessionAuthentication menggunakan cookie session untuk mengenali pengguna, dan browser akan mengirim cookie tersebut secara otomatis ke server, termasuk ketika request dipicu dari situs lain. Akibatnya, jika pengguna sedang login lalu membuka situs jahat, situs tersebut bisa mengirim request POST atau DELETE ke API kita atas nama pengguna tersebut. Serangan ini disebut Cross-Site Request Forgery (CSRF). Token CSRF mencegah serangan ini karena token hanya bisa dibaca oleh halaman dari origin kita sendiri dan harus dikirim melalui header X-CSRFToken pada setiap request yang mengubah data. Situs lain tidak bisa membaca token tersebut, sehingga request palsunya akan ditolak dengan status 403. Test yang memakai force_authenticate tidak cukup untuk membuktikan perlindungan CSRF, karena force_authenticate langsung menandai request sebagai milik pengguna tertentu dan melewati proses autentikasi. Akibatnya, SessionAuthentication beserta pemeriksaan CSRF di dalamnya tidak pernah dijalankan, sehingga test tetap lulus walaupun token CSRF tidak dikirim. Untuk membuktikan bahwa perlindungan CSRF berjalan, test harus menggunakan APIClient(enforce_csrf_checks=True), melakukan login sungguhan melalui session, lalu memastikan bahwa request tanpa token menghasilkan 403 dan request dengan token yang valid berhasil.
 
+#### Fitur Tambahan Tugas 6
+Selain checklist pada soal, saya menambahkan beberapa fitur berikut:
+1. Validasi tahun selesai yang tidak boleh lebih awal dari tahun mulai. Validasi ini tetap berjalan saat PATCH, karena tahun yang tidak dikirim diambil dari data lama di database.
+2. Modal edit yang langsung terisi dengan data card yang dipilih, tanpa perlu request tambahan ke server.
+3. Pencarian langsung saat mengetik dengan debouncing 300 ms dan `AbortController`, sehingga hasil pencarian lama tidak menimpa hasil pencarian terbaru.
+4. Tampilan loading, data kosong, dan error saat memuat data dari API.
+5. Konfirmasi sebelum menghapus data, serta tombol yang dinonaktifkan selama request berjalan agar data tidak terkirim dua kali.
+6. Tooltip pada tombol star yang menampilkan nama pengguna yang sudah memberi star. Pengunjung yang belum login diarahkan ke halaman login.
+7. Field read-only `is_ongoing`, sehingga card dapat menampilkan "Present" untuk pendidikan yang masih berjalan.
+8. Field star yang dipakai bersama oleh Project dan Education dipisahkan ke `StarFieldsMixin`, dan data star diambil dengan `prefetch_related` agar tidak terjadi query berulang untuk setiap data (N+1 query).
+9. Endpoint Education lama dari Tugas 3 sampai Tugas 5 (JSON, AJAX, star, dan hapus) dihapus, sehingga halaman Education hanya memakai satu sumber data, yaitu API `/api/v1/educations/`.
+
 #### AI Disclosure Tugas 6
 Pada tugas ini saya menggunakan Claude Code (model Claude Opus 5.5, aplikasi desktop Claude) untuk membantu saya mengerjakan tugas ini. 
 AI tersebut saya gunakan untuk:
@@ -119,7 +216,8 @@ AI tersebut saya gunakan untuk:
 5. Menguji hasil pekerjaan melalui Django shell, menjalankan `python manage.py test main`, dan mengecek halaman Education di browser bawaan sebagai pengunjung. Pengujian saat login (tambah, edit, star, hapus) saya lakukan sendiri di browser karena AI tidak menggunakan akun saya.
 6. Menjelaskan maksud pertanyaan reflektif beserta poin-poin yang perlu dibahas. Jawaban pertanyaan reflektif saya tulis sendiri, kemudian diperiksa kembali oleh AI. AI menemukan tiga bagian yang kurang tepat dan membantu saya memperbaikinya, yaitu contoh PATCH yang tidak sesuai dengan endpoint star saya (star memakai POST), contoh field read-only `owner` yang tidak ada di model Education, dan status 401 yang ternyata tidak dipakai oleh SessionAuthentication (DRF mengembalikan 403).
 7. Membuat commit dengan format conventional commits dan membuat transkrip chat log.
+8. Memeriksa kembali seluruh pengerjaan terhadap checklist dan rubrik Tugas 6 setelah tugas selesai. Dari pemeriksaan ini, AI memperbaiki jawaban reflektif (lihat poin 6), menambahkan deskripsi proyek, cara menjalankan proyek, tabel hak akses, daftar endpoint API, progres mingguan, dan fitur tambahan ke README, memindahkan field star yang ditulis ganda ke `StarFieldsMixin`, menambahkan docstring, serta menghapus endpoint Education lama yang sudah digantikan API beserta test-nya.
 
-Secara keseluruhan output yang dikeluarkan oleh AI sudah benar dan tidak ada misinformasi. Berbeda dengan Tugas 4 dan Tugas 5, pada tugas ini AI menulis kode secara langsung, sehingga saya memastikan pemahaman dengan meminta penjelasan rinci di setiap langkah sebelum lanjut. AI juga sempat membuat kesalahan, yaitu melakukan commit integrasi halaman tanpa menjalankan seluruh test terlebih dahulu sehingga satu test lama (`test_education_page`) gagal karena masih mengharapkan endpoint JSON lama. Kesalahan ini kemudian diperbaiki pada commit terpisah, dan setelahnya seluruh test dijalankan sebelum setiap commit.
+Secara keseluruhan output yang dikeluarkan oleh AI sudah benar, tetapi tidak sepenuhnya bebas dari kesalahan sehingga tetap perlu saya periksa kembali. Berbeda dengan Tugas 4 dan Tugas 5, pada tugas ini AI menulis kode secara langsung, sehingga saya memastikan pemahaman dengan meminta penjelasan rinci di setiap langkah sebelum lanjut. AI juga sempat membuat kesalahan, yaitu melakukan commit integrasi halaman tanpa menjalankan seluruh test terlebih dahulu sehingga satu test lama (`test_education_page`) gagal karena masih mengharapkan endpoint JSON lama. Kesalahan ini kemudian diperbaiki pada commit terpisah, dan setelahnya seluruh test dijalankan sebelum setiap commit.
 
 Log Claude: Claude Code belum menyediakan fitur share chat log melalui link. Sebagai pengganti saya salin log AI ke dalam file /AI_CHAT_LOG/Tugas6.md
