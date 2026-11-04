@@ -62,6 +62,9 @@
     {% if user.is_superuser %}
         {% include 'components/education_form_modal.html' %}
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include 'components/education_edit_modal.html' %}
+    {% endif %}
 
     {% csrf_token %}
     <script>
@@ -79,6 +82,8 @@
 
     let educationsAbortController;
     let searchDebounceTimer;
+    let editingEducationId = null;
+    const educationsById = new Map(); // Data terakhir dari API, dipakai untuk mengisi modal edit
 
     // Elemen DOM
     const loadingState = document.getElementById('loading');
@@ -88,6 +93,10 @@
     const searchForm = document.getElementById('education-search-form');
     const searchInput = document.getElementById('search-input');
     const educationForm = document.getElementById('education-form');
+    const editModal = document.getElementById('edit-education-modal');
+    const editForm = document.getElementById('education-edit-form');
+    const EDIT_PREFIX = 'edit-';
+    const EDUCATION_FIELDS = ['institution', 'degree', 'start_year', 'end_year', 'description', 'logo'];
 
     // Membaca nilai cookie, digunakan untuk mengambil token CSRF
     function getCookie(name) {
@@ -150,9 +159,9 @@
                    <span class="star-count">${escapeHtml(education.star_count)}</span>
                </a>`;
 
-        const editUrl = "{% url 'main:update_education' '00000000-0000-0000-0000-000000000000' %}".replace(DUMMY_UUID, education.id);
         const editHtml = CAN_EDIT
-            ? `<a href="${escapeHtml(editUrl)}" class="button">Edit</a>`
+            ? `<button type="button" class="button"
+                       data-action="edit" data-id="${escapeHtml(education.id)}">Edit</button>`
             : '';
 
         const deleteHtml = CAN_DELETE
@@ -190,6 +199,8 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const educations = await response.json();
+            educationsById.clear();
+            educations.forEach(education => educationsById.set(education.id, education));
             gridContainer.replaceChildren(...educations.map(buildEducationCardElement));
             displayPageSection({ showGrid: educations.length > 0, showEmpty: educations.length === 0 });
         } catch (error) {
@@ -222,17 +233,14 @@
         return data;
     }
 
-    // Mengubah isi form menjadi objek JSON; tanggal kosong dikirim sebagai null
-    function educationPayload(form) {
+    // Mengubah isi form menjadi objek JSON; tanggal kosong dikirim sebagai null.
+    // prefix dipakai untuk form edit yang name input-nya "edit-institution", dst.
+    function educationPayload(form, prefix = '') {
         const fields = new FormData(form);
-        return {
-            institution: fields.get('institution'),
-            degree: fields.get('degree'),
-            start_year: fields.get('start_year') || null,
-            end_year: fields.get('end_year') || null,
-            description: fields.get('description'),
-            logo: fields.get('logo'),
-        };
+        const payload = Object.fromEntries(EDUCATION_FIELDS.map(name => [name, fields.get(prefix + name)]));
+        payload.start_year = payload.start_year || null;
+        payload.end_year = payload.end_year || null;
+        return payload;
     }
 
     // Mengirim data form tambah edukasi sebagai JSON
@@ -255,11 +263,43 @@
 
     if (educationForm) educationForm.addEventListener('submit', addEducation);
 
-    // Event delegation untuk tombol star dan hapus pada setiap card
+    // Mengisi modal edit dengan data card yang dipilih, lalu membukanya
+    function openEditModal(educationId) {
+        const education = educationsById.get(educationId);
+        if (!education || !editForm) return;
+        editingEducationId = educationId;
+        EDUCATION_FIELDS.forEach(name => {
+            editForm.elements[EDIT_PREFIX + name].value = education[name] ?? '';
+        });
+        editModal.showPopover();
+    }
+
+    // Mengirim perubahan sebagai PATCH ke API detail
+    async function updateEducation(event) {
+        event.preventDefault();
+        const submitButton = editForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        try {
+            await writeEducation(educationEndpoint(DETAIL_EDUCATION_ENDPOINT, editingEducationId),
+                'PATCH', educationPayload(editForm, EDIT_PREFIX));
+            editModal.hidePopover();
+            showToast('Berhasil', 'Riwayat edukasi berhasil diperbarui!', 'success');
+            await fetchEducations(searchInput.value.trim());
+        } catch (error) {
+            showToast('Gagal memperbarui riwayat edukasi', error.message, 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (editForm) editForm.addEventListener('submit', updateEducation);
+
+    // Event delegation untuk tombol star, edit, dan hapus pada setiap card
     gridContainer.addEventListener('click', async function(event) {
         const button = event.target.closest('button[data-action]');
         if (!button || button.disabled) return;
         const action = button.dataset.action;
+        if (action === 'edit') return openEditModal(button.dataset.id);
         if (action === 'delete' && !window.confirm('Yakin ingin menghapus riwayat edukasi ini?')) return;
         button.disabled = true;
         try {

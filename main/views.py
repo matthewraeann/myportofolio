@@ -45,7 +45,9 @@ def show_educations(request):
         "name": "Matthew Raeann Alexandra",
         "institution_query": institution_query,
         "is_editor": is_editor,
-        "form": EducationForm()
+        "form": EducationForm(),
+        # Prefix "edit" agar id/name input modal edit tidak bentrok dengan modal tambah
+        "edit_form": EducationForm(prefix="edit"),
     }
     return render(request, "education.html", context)
 
