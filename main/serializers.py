@@ -4,11 +4,33 @@ from rest_framework import serializers
 from main.models import Education, Project
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class StarFieldsMixin(serializers.Serializer):
+    """Field star read-only yang dipakai bersama oleh Project dan Education.
+
+    Model yang memakai mixin ini wajib punya relasi ``starred_by`` ke User.
+    Ketiga field dihitung dari ``obj.starred_by.all()``, sehingga jika view
+    memakai ``prefetch_related("starred_by")`` tidak ada query tambahan per
+    objek. Hanya username yang ditampilkan; email dan password tidak ikut.
+    """
+
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
     starred_by_names = serializers.SerializerMethodField()
 
+    def get_star_count(self, obj):
+        return len(obj.starred_by.all())
+
+    def get_is_starred(self, obj):
+        request = self.context.get("request")
+        if request is None or not request.user.is_authenticated:
+            return False
+        return any(user.pk == request.user.pk for user in obj.starred_by.all())
+
+    def get_starred_by_names(self, obj):
+        return ", ".join(user.username for user in obj.starred_by.all())
+
+
+class ProjectSerializer(StarFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
@@ -30,24 +52,16 @@ class ProjectSerializer(serializers.ModelSerializer):
     def validate_tech_stack(self, value):
         return strip_tags(value)
 
-    def get_star_count(self, obj):
-        return obj.starred_by.count()
 
-    def get_is_starred(self, obj):
-        request = self.context.get("request")
-        if request is None or not request.user.is_authenticated:
-            return False
-        return request.user in obj.starred_by.all()
+class EducationSerializer(StarFieldsMixin, serializers.ModelSerializer):
+    """Representasi dan validasi data Education untuk API /api/v1/educations/.
 
-    def get_starred_by_names(self, obj):
-        return ", ".join(user.username for user in obj.starred_by.all())
+    Input teks dibersihkan dengan ``strip_tags`` seperti ``clean_<field>`` di
+    ``EducationForm``. ``starred_by`` sengaja tidak dimasukkan ke ``fields``,
+    sehingga star hanya bisa diubah lewat endpoint star.
+    """
 
-
-class EducationSerializer(serializers.ModelSerializer):
     is_ongoing = serializers.ReadOnlyField()
-    star_count = serializers.SerializerMethodField()
-    is_starred = serializers.SerializerMethodField()
-    starred_by_names = serializers.SerializerMethodField()
 
     class Meta:
         model = Education
@@ -82,15 +96,3 @@ class EducationSerializer(serializers.ModelSerializer):
                 {"end_year": "Tahun selesai tidak boleh lebih awal dari tahun mulai."}
             )
         return attrs
-
-    def get_star_count(self, obj):
-        return obj.starred_by.count()
-
-    def get_is_starred(self, obj):
-        request = self.context.get("request")
-        if request is None or not request.user.is_authenticated:
-            return False
-        return request.user in obj.starred_by.all()
-
-    def get_starred_by_names(self, obj):
-        return ", ".join(user.username for user in obj.starred_by.all())
