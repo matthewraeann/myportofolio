@@ -627,3 +627,90 @@ lanjut, namun jangan push ke github dan pws terlebih dahulu
 
 *[Aksi: Bash — Commit README, regenerate and commit chat log, verify history]*
 
+
+---
+
+# Sesi Pemeriksaan Akhir (Review terhadap Rubrik)
+
+---
+
+## 👤 User
+
+Periksa pengerjaan Tugas 6 saya. File Tugas 6 ada di "myportofolio\File Tutorial Tugas\Tugas\Tugas 6.pdf". Baca rubriknya (ada di File Tugas 6) dan pastikan bahwa seluruh pengerjaan saya sudah sesuai untuk mendapatkan nilai maksimal (4).
+
+*[Aksi: Read — File Tutorial Tugas\Tugas\Tugas 6.pdf]*
+
+*[Aksi: Bash — Show serializer, permissions, API URLs, API views, models, views, forms]*
+
+*[Aksi: Bash — Show education page template, edit modal, and API tests]*
+
+*[Aksi: Bash — Run test suite, system check, migration check]*
+
+*[Aksi: Bash — Show README outline, chat log sizes, push status]*
+
+*[Aksi: browser_batch — Buka Browsable API /api/v1/educations/, halaman Education, halaman Projects, dan uji live search sebagai pengunjung]*
+
+## 🤖 Claude
+
+**Kesimpulan:** implementasi sudah memenuhi semua checklist, tetapi ada beberapa celah untuk nilai 4, sebagian besar di dokumentasi. Hal paling mendesak: 10 commit Tugas 6 belum di-push ke GitHub (`origin/main` masih di commit Tutorial 7), begitu juga PWS.
+
+**Yang sudah diverifikasi:** serializer (fields eksplisit, field star read-only, `validate_<field>` dengan `strip_tags`), permission (`IsPortfolioOwnerOrEditorOrReadOnly` dan `IsAuthenticated`), API view dengan `@api_view` dan `SessionAuthentication`, status 201/400/403/404/204, URL `/api/v1/educations/`, integrasi halaman (tampil, cari, tambah, star, hapus, edit PATCH, toast, `X-CSRFToken`, escaping), test untuk 4 peran + isi DB + validasi + star + CSRF dengan `.login()`. `python manage.py test main`: 46 test lulus. Browsable API, halaman Education, dan halaman Projects berjalan tanpa error console.
+
+**Yang perlu diperbaiki:**
+1. Dokumentasi: README belum punya deskripsi proyek, setup, daftar endpoint, dan progres mingguan; heading `### Tugas 4` hilang.
+2. Jawaban reflektif: no. 3 menyebut 401 padahal `SessionAuthentication` mengembalikan 403; no. 1 memakai contoh PATCH star yang tidak sesuai implementasi; no. 2 memakai contoh field `owner` yang tidak ada di model Education.
+3. AI disclosure: kalimat "tidak ada misinformasi" bertentangan dengan kesalahan AI yang diceritakan sesudahnya.
+4. Fitur ekstra sudah ada tetapi belum dituliskan di README.
+5. Kualitas kode (opsional): method star ditulis ganda di dua serializer, belum ada docstring, ada endpoint Education lama yang tidak dipakai lagi.
+
+---
+
+## 👤 User
+
+bisakah anda perbaiki? untuk perbaikan di readme.md, gunakan gaya penulisan yang sama
+
+*[Aksi: Read — README.md]*
+
+*[Aksi: Edit — README.md (jawaban reflektif no. 1, 2, 3 dan AI disclosure poin 6)]*
+
+## 🤖 Claude
+
+Langkah 1 selesai. Tiga kalimat di jawaban reflektif diperbaiki dengan gaya penulisan yang sama: contoh PATCH diganti menjadi mengisi `end_year` saat lulus, contoh field read-only `owner` diganti `star_count` dan `is_starred`, dan penjelasan 401/403 dilengkapi bahwa DRF mengembalikan 403 karena `SessionAuthentication` tidak mengirim header `WWW-Authenticate` (sesuai test `test_star_requires_login_and_toggles`). Poin 6 AI disclosure juga diperbarui karena AI ikut mengoreksi jawaban reflektif. Kalimat penutup disclosure belum diubah karena analisis kritis sebaiknya ditulis sendiri.
+
+---
+
+## 👤 User
+
+kerjakan semuanya sekaligus
+
+*[Aksi: Bash — Find usages of legacy education views and list tests]*
+
+*[Aksi: Write — main/serializers.py (StarFieldsMixin dan docstring)]*
+
+*[Aksi: Edit — main/api_views.py dan main/permissions.py (docstring)]*
+
+*[Aksi: Bash — Run tests, commit serializer refactor and docstrings]*
+
+*[Aksi: Bash — Remove legacy education JSON/AJAX/star/delete views and URLs]*
+
+*[Aksi: Bash — Update legacy tests, delete unused components, rerun tests]*
+
+*[Aksi: Bash — Commit legacy education code removal dan perbaikan jawaban reflektif]*
+
+*[Aksi: Edit — README.md (deskripsi proyek, cara menjalankan, hak akses, endpoint API, progres mingguan, heading Tugas 4, fitur tambahan Tugas 6, AI disclosure poin 8)]*
+
+*[Aksi: browser_batch — Cek ulang API dan halaman Education setelah refactor]*
+
+*[Aksi: Bash — Commit README dan chat log]*
+
+## 🤖 Claude
+
+Semua perbaikan dikerjakan dan di-commit per bagian (tanpa push):
+- `refactor: extract shared star fields into StarFieldsMixin`
+- `docs: add docstrings to Education API views and permission class`
+- `refactor: remove legacy education JSON, AJAX, star, and delete views replaced by the API`
+- `docs: fix inaccuracies in Tugas 6 reflective answers`
+- `docs: add project description, setup, API endpoints, roles, weekly progress, and Tugas 6 extra features to README`
+- `docs: add final review session to Tugas 6 AI chat log`
+
+`python manage.py test main` lulus (36 test; 10 test endpoint lama dihapus karena sudah tercakup oleh `EducationAPITest`). Halaman Education dan Browsable API dicek ulang di browser. Push ke GitHub dan PWS menunggu persetujuan user.
