@@ -75,6 +75,12 @@ def project_star(request, project_id):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsPortfolioOwnerOrEditorOrReadOnly])
 def education_list(request):
+    """GET: daftar Education, bisa dicari dengan ?institution=. POST: membuat data baru.
+
+    Semua pengunjung boleh GET. POST hanya untuk pemilik portofolio (superuser).
+    Hak akses dicek oleh IsPortfolioOwnerOrEditorOrReadOnly sebelum view ini
+    berjalan, dan input tidak valid dijawab 400 oleh serializer.
+    """
     if request.method in ("GET", "HEAD"):
         educations = Education.objects.prefetch_related("starred_by").order_by("-start_year", "id")
         institution = request.query_params.get("institution", "").strip()
@@ -95,6 +101,13 @@ def education_list(request):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsPortfolioOwnerOrEditorOrReadOnly])
 def education_detail(request, education_id):
+    """GET satu Education, PUT/PATCH untuk mengubah, DELETE untuk menghapus.
+
+    PUT dan PATCH boleh dilakukan oleh Editor dan pemilik, sedangkan DELETE
+    hanya oleh pemilik. PATCH memakai partial=True sehingga field yang tidak
+    dikirim tetap seperti semula. ID yang tidak ada dijawab 404, dan DELETE
+    yang berhasil dijawab 204 tanpa body.
+    """
     education = get_object_or_404(
         Education.objects.prefetch_related("starred_by"), pk=education_id,
     )
@@ -119,6 +132,11 @@ def education_detail(request, education_id):
 @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def education_star(request, education_id):
+    """Memberi atau membatalkan star (toggle) untuk pengguna yang sedang login.
+
+    Akun pemberi star selalu diambil dari request.user, bukan dari body
+    request, sehingga pengguna tidak bisa memberi star atas nama orang lain.
+    """
     education = get_object_or_404(Education, pk=education_id)
     if education.starred_by.filter(pk=request.user.pk).exists():
         education.starred_by.remove(request.user)

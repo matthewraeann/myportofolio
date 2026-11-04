@@ -12,6 +12,15 @@ class IsPortfolioOwnerOrReadOnly(BasePermission):
 
 
 class IsPortfolioOwnerOrEditorOrReadOnly(BasePermission):
+    """Hak akses empat peran dari Tugas 4 untuk endpoint daftar dan detail.
+
+    - Pengunjung dan pengguna biasa: hanya boleh membaca (GET, HEAD, OPTIONS).
+    - Editor (anggota Group "Editor"): boleh membaca dan mengubah (PUT, PATCH).
+    - Pemilik portofolio (superuser): boleh semua method, termasuk POST dan DELETE.
+
+    Star tidak diatur di sini, karena endpoint star memakai IsAuthenticated.
+    """
+
     message = (
         "Hanya pemilik portofolio yang dapat menambah atau menghapus data. "
         "Editor hanya dapat mengubah data."
